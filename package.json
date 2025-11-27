@@ -1,20 +1,15 @@
 {
-  "name": "twinklepod",
+  "name": "twinklepod-monorepo",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
-    "build:infra": "npm run build -w packages/infra",
-    "build:api": "npm run build -w packages/api",
-    "build:ui": "npm run build -w packages/ui",
-    "deploy": "npm run build && npm run cdk:deploy -w packages/infra",
-    "cdk:deploy": "npm run cdk:deploy -w packages/infra"
-  },
-  "devDependencies": {
-    "aws-cdk": "^2.1033.0",
-    "typescript": "^5.4.5"
+    "build": "npm run build:api && npm run build:infra && npm run build:ui",
+    "build:api": "cd packages/api && npm run build",
+    "build:infra": "cd packages/infra && npm run build",
+    "build:ui": "cd packages/ui && npm run build",
+    "deploy": "cd packages/infra && npx cdk deploy --all"
   }
 }
