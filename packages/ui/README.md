@@ -2,14 +2,47 @@
 
 Next.js 14 frontend for TwinklePod MVP.
 
+## ✅ Status: Week 1 Complete
+
+All MVP frontend features implemented and ready for deployment.
+
 ## Features
 
 - ✅ Next.js 14 with App Router
 - ✅ TypeScript
-- ✅ Tailwind CSS
+- ✅ Tailwind CSS v4
 - ✅ Cognito authentication
 - ✅ Context providers (Auth, Child)
-- ✅ Responsive layout
+- ✅ Responsive layout with mobile menu
+- ✅ Loading skeletons
+- ✅ Error handling
+
+## Pages
+
+| Route | Status | Features |
+|-------|--------|----------|
+| `/` | ✅ Complete | Home page with hero and features |
+| `/login` | ✅ Complete | Login/register with Cognito |
+| `/dashboard` | ✅ Complete | Manage children (CRUD) |
+| `/stories` | ✅ Complete | Browse stories with category filter |
+| `/stories/[id]` | ✅ Complete | Story reader with progress tracking |
+| `/library` | ✅ Complete | Continue, favorites, completed tabs |
+| `/not-found` | ✅ Complete | 404 page |
+
+## Components
+
+### Layout
+- `Header` - Navigation with child selector + mobile menu
+- `Footer` - Site footer
+
+### UI
+- `Button` - Styled button (primary, secondary, outline)
+- `Modal` - Modal dialog
+- `LoadingSkeleton` - Loading states
+
+### Contexts
+- `AuthContext` - User authentication state
+- `ChildContext` - Child profiles management
 
 ## Development
 
@@ -31,43 +64,53 @@ NEXT_PUBLIC_COGNITO_REGION=us-east-1
 NEXT_PUBLIC_CLOUDFRONT_URL=https://ddtxvdz23zxh1.cloudfront.net
 ```
 
-## Pages
+## Build
 
-- `/` - Home page
-- `/login` - Login/Register
-- `/dashboard` - Manage children
-- `/stories` - Browse stories
-- `/stories/[id]` - Story reader (coming soon)
-- `/library` - My library (coming soon)
+```bash
+npm run build
+```
 
-## Components
-
-### Layout
-- `Header` - Navigation with child selector
-- `Footer` - Site footer
-
-### UI
-- `Button` - Styled button component
-- `Modal` - Modal dialog
-
-### Contexts
-- `AuthContext` - User authentication state
-- `ChildContext` - Child profiles management
+Output: `.next/` directory
 
 ## Deployment
 
-Deploy to AWS Amplify:
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for AWS Amplify deployment guide.
 
-1. Connect GitHub repo
-2. Set environment variables
-3. Build command: `npm run build`
-4. Output directory: `.next`
+**Quick Deploy**:
+1. Connect GitHub repo to Amplify
+2. Set app root: `packages/ui`
+3. Add environment variables
+4. Deploy
 
-## Next Steps
+## API Integration
 
-- [ ] Story reader page
-- [ ] Library page with tabs
-- [ ] Progress tracking UI
-- [ ] Favorite button
-- [ ] Loading skeletons
-- [ ] Error boundaries
+All endpoints integrated:
+- ✅ `POST /users/register`
+- ✅ `POST /users/login`
+- ✅ `GET /users/profile`
+- ✅ `GET /api/children`
+- ✅ `POST /api/children`
+- ✅ `DELETE /api/children/{id}`
+- ✅ `GET /stories/list`
+- ✅ `GET /stories/{id}`
+- ✅ `POST /api/progress`
+- ✅ `POST /api/interaction`
+- ✅ `GET /api/library`
+
+## Testing Checklist
+
+- [ ] Sign up new user
+- [ ] Login existing user
+- [ ] Create child profile
+- [ ] Browse stories by category
+- [ ] Read a story
+- [ ] Track reading progress
+- [ ] Favorite a story
+- [ ] View library tabs
+- [ ] Delete child profile
+- [ ] Logout
+
+---
+
+**Status**: ✅ Ready for deployment  
+**Last Updated**: 2025-11-27

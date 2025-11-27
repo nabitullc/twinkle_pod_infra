@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { StoryGridSkeleton } from '@/components/ui/LoadingSkeleton';
 
 interface Story {
   story_id: string;
@@ -23,6 +24,7 @@ export default function StoriesPage() {
   }, [category]);
 
   const fetchStories = async () => {
+    setLoading(true);
     try {
       const params = category ? { category } : {};
       const { data } = await api.get('/stories/list', { params });
@@ -59,7 +61,7 @@ export default function StoriesPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">Loading stories...</div>
+        <StoryGridSkeleton />
       ) : (
         <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
           {stories.map((story) => (
