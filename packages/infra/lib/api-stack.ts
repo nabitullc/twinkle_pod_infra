@@ -119,6 +119,71 @@ export class ApiStack extends cdk.Stack {
       },
     });
 
+    // Stories handlers
+    const listStoriesFn = new lambda.Function(this, 'ListStoriesFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handlers/stories.list',
+      code: lambda.Code.fromAsset('../api/dist'),
+      role: lambdaRole,
+      environment: {
+        DYNAMODB_STORIES_TABLE: `twinklepod-stories-${stage}`,
+      },
+    });
+
+    const getStoryFn = new lambda.Function(this, 'GetStoryFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handlers/stories.get',
+      code: lambda.Code.fromAsset('../api/dist'),
+      role: lambdaRole,
+      environment: {
+        DYNAMODB_STORIES_TABLE: `twinklepod-stories-${stage}`,
+        S3_BUCKET_NAME: `twinklepod-stories-${stage}`,
+      },
+    });
+
+    // Progress handlers
+    const saveProgressFn = new lambda.Function(this, 'SaveProgressFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handlers/progress.save',
+      code: lambda.Code.fromAsset('../api/dist'),
+      role: lambdaRole,
+      environment: {
+        DYNAMODB_PROGRESS_TABLE: `twinklepod-progress-${stage}`,
+      },
+    });
+
+    const getProgressFn = new lambda.Function(this, 'GetProgressFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handlers/progress.getProgress',
+      code: lambda.Code.fromAsset('../api/dist'),
+      role: lambdaRole,
+      environment: {
+        DYNAMODB_PROGRESS_TABLE: `twinklepod-progress-${stage}`,
+      },
+    });
+
+    // Interaction handlers
+    const saveInteractionFn = new lambda.Function(this, 'SaveInteractionFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handlers/interactions.save',
+      code: lambda.Code.fromAsset('../api/dist'),
+      role: lambdaRole,
+      environment: {
+        DYNAMODB_EVENTS_TABLE: `twinklepod-events-${stage}`,
+      },
+    });
+
+    const getLibraryFn = new lambda.Function(this, 'GetLibraryFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handlers/interactions.getLibrary',
+      code: lambda.Code.fromAsset('../api/dist'),
+      role: lambdaRole,
+      environment: {
+        DYNAMODB_PROGRESS_TABLE: `twinklepod-progress-${stage}`,
+        DYNAMODB_EVENTS_TABLE: `twinklepod-events-${stage}`,
+      },
+    });
+
     // API Gateway
     const api = new apigateway.RestApi(this, 'Api', {
       restApiName: `twinklepod-api-${stage}`,
@@ -159,6 +224,36 @@ export class ApiStack extends cdk.Stack {
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
     childById.addMethod('DELETE', new apigateway.LambdaIntegration(deleteChildFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Stories routes (public)
+    const stories = api.root.addResource('stories');
+    stories.addResource('list').addMethod('GET', new apigateway.LambdaIntegration(listStoriesFn));
+    stories.addResource('{id}').addMethod('GET', new apigateway.LambdaIntegration(getStoryFn));
+
+    // Progress routes (protected)
+    const apiResource = api.root.getResource('api') || api.root.addResource('api');
+    const progress = apiResource.addResource('progress');
+    progress.addMethod('POST', new apigateway.LambdaIntegration(saveProgressFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    progress.addMethod('GET', new apigateway.LambdaIntegration(getProgressFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Interaction routes (protected)
+    const interaction = apiResource.addResource('interaction');
+    interaction.addMethod('POST', new apigateway.LambdaIntegration(saveInteractionFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    const library = apiResource.addResource('library');
+    library.addMethod('GET', new apigateway.LambdaIntegration(getLibraryFn), {
       authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
