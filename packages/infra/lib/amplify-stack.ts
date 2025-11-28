@@ -72,11 +72,7 @@ applications:
       subDomainSettings: [
         {
           branchName: branch.branchName,
-          prefix: '',
-        },
-        {
-          branchName: branch.branchName,
-          prefix: 'www',
+          prefix: stage === 'beta' ? 'beta' : '',
         },
       ],
     });
@@ -86,6 +82,8 @@ applications:
 
     new cdk.CfnOutput(this, 'AppId', { value: amplifyApp.attrAppId });
     new cdk.CfnOutput(this, 'DefaultDomain', { value: amplifyApp.attrDefaultDomain });
-    new cdk.CfnOutput(this, 'CustomDomain', { value: 'https://twinklepod.com' });
+    new cdk.CfnOutput(this, 'CustomDomain', { 
+      value: stage === 'beta' ? 'https://beta.twinklepod.com' : 'https://twinklepod.com' 
+    });
   }
 }
