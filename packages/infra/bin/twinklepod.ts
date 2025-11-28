@@ -4,6 +4,7 @@ import { StorageStack } from '../lib/storage-stack';
 import { DatabaseStack } from '../lib/database-stack';
 import { AuthStack } from '../lib/auth-stack';
 import { ApiStack } from '../lib/api-stack';
+import { AmplifyStack } from '../lib/amplify-stack';
 import { PipelineStack } from '../lib/pipeline-stack';
 
 const app = new cdk.App();
@@ -20,7 +21,7 @@ const databaseStack = new DatabaseStack(app, `TwinklePod-Database-${stage}`, { e
 const authStack = new AuthStack(app, `TwinklePod-Auth-${stage}`, { env, stage });
 
 // API stack (depends on auth and database)
-new ApiStack(app, `TwinklePod-Api-${stage}`, {
+const apiStack = new ApiStack(app, `TwinklePod-Api-${stage}`, {
   env,
   stage,
   userPoolId: authStack.userPoolId,
@@ -33,6 +34,19 @@ new ApiStack(app, `TwinklePod-Api-${stage}`, {
     events: databaseStack.eventsTable.tableArn,
   },
 });
+
+// Amplify stack (depends on API and Auth)
+if (process.env.GITHUB_TOKEN) {
+  new AmplifyStack(app, `TwinklePod-Amplify-${stage}`, {
+    env,
+    stage,
+    apiUrl: apiStack.apiUrl || '',
+    userPoolId: authStack.userPoolId,
+    userPoolClientId: authStack.userPoolClient.userPoolClientId,
+    cloudfrontUrl: storageStack.cloudfrontUrl || '',
+    githubToken: process.env.GITHUB_TOKEN,
+  });
+}
 
 // Pipeline stack (only for beta/prod, not for local dev)
 if (process.env.DEPLOY_PIPELINE === 'true') {

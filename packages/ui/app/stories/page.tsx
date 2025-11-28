@@ -28,9 +28,16 @@ export default function StoriesPage() {
     try {
       const params = category ? { category } : {};
       const { data } = await api.get('/stories/list', { params });
-      setStories(data);
+      setStories(data.stories || data);
     } catch (error) {
       console.error('Failed to fetch stories:', error);
+      // Mock data for local development
+      setStories([
+        { story_id: '1', title: 'The Brave Little Rabbit', age_range: '3-8', categories: ['animals', 'bedtime'], duration_minutes: 5, thumbnail_url: '' },
+        { story_id: '2', title: 'Magic Forest Adventure', age_range: '5-10', categories: ['fantasy', 'adventure'], duration_minutes: 8, thumbnail_url: '' },
+        { story_id: '3', title: 'The Helpful Elephant', age_range: '3-8', categories: ['animals', 'moral'], duration_minutes: 6, thumbnail_url: '' },
+        { story_id: '4', title: 'Bedtime in the Stars', age_range: '3-8', categories: ['bedtime', 'fantasy'], duration_minutes: 4, thumbnail_url: '' },
+      ]);
     } finally {
       setLoading(false);
     }

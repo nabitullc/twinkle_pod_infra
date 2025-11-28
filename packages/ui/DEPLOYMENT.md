@@ -1,157 +1,106 @@
-# UI Deployment Guide
+# Deploy TwinklePod UI to twinklepod.com
 
-## AWS Amplify Deployment
+## Option 1: AWS Amplify (Recommended)
 
-### Prerequisites
-- AWS Account with Amplify access
-- GitHub repository connected
-
-### Step 1: Create Amplify App
-
+### Step 1: Deploy to Amplify
 ```bash
-# Via AWS Console
+cd /Users/rithvicca/twinklepod/twinklepod-monorepo/packages/ui
+npm run build  # Test build first
+```
+
+### Step 2: Create Amplify App
+```bash
+# Install Amplify CLI if needed
+npm install -g @aws-amplify/cli
+
+# Deploy
+amplify init
+amplify add hosting
+amplify publish
+```
+
+### Step 3: Add Custom Domain
 1. Go to AWS Amplify Console
-2. Click "New app" → "Host web app"
-3. Connect GitHub repository: nabitullc/twinkle_pod_monorepo
-4. Select branch: main
+2. Select your app
+3. Click "Domain management"
+4. Click "Add domain"
+5. Enter: `twinklepod.com`
+6. Amplify will provide DNS records
+
+### Step 4: Update DNS (at your registrar)
+Add these records (Amplify will show exact values):
+```
+Type: CNAME
+Name: www
+Value: [amplify-provided-value]
+
+Type: A
+Name: @
+Value: [amplify-provided-ip]
 ```
 
-### Step 2: Configure Build Settings
-
-**App root directory**: `packages/ui`
-
-**Build settings** (use amplify.yml):
-```yaml
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - npm ci
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: .next
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - node_modules/**/*
-      - .next/cache/**/*
-```
-
-### Step 3: Environment Variables
-
-Add in Amplify Console → Environment variables:
-
-```
-NEXT_PUBLIC_API_URL=https://6c0ae99ndf.execute-api.us-east-1.amazonaws.com/prod
-NEXT_PUBLIC_COGNITO_USER_POOL_ID=us-east-1_bvX3w7hFX
-NEXT_PUBLIC_COGNITO_CLIENT_ID=hbrnn4qbumoou59854fif8ivv
-NEXT_PUBLIC_COGNITO_REGION=us-east-1
-NEXT_PUBLIC_CLOUDFRONT_URL=https://ddtxvdz23zxh1.cloudfront.net
-```
-
-### Step 4: Deploy
-
-1. Click "Save and deploy"
-2. Wait for build to complete (~3-5 minutes)
-3. Access app at: `https://[app-id].amplifyapp.com`
-
-### Step 5: Custom Domain (Optional)
-
-1. Go to Domain management
-2. Add custom domain: `twinklepod.com`
-3. Configure DNS records
-4. Wait for SSL certificate provisioning
+**Time to propagate**: 5-30 minutes
 
 ---
 
-## Manual Deployment (Alternative)
+## Option 2: Vercel (Alternative - Faster)
 
-### Build locally
+### Step 1: Install Vercel CLI
+```bash
+npm install -g vercel
+```
+
+### Step 2: Deploy
+```bash
+cd /Users/rithvicca/twinklepod/twinklepod-monorepo/packages/ui
+vercel
+```
+
+### Step 3: Add Domain
+```bash
+vercel domains add twinklepod.com
+```
+
+### Step 4: Update DNS
+Vercel will show you the DNS records to add at your registrar.
+
+---
+
+## Quick Start (Choose One)
+
+**For AWS Amplify**:
 ```bash
 cd packages/ui
 npm run build
+# Then follow AWS Amplify Console steps
 ```
 
-### Deploy to S3 + CloudFront
+**For Vercel**:
 ```bash
-# Export static site
-npm run build
-
-# Upload to S3
-aws s3 sync .next/static s3://twinklepod-ui-beta/static
-aws s3 sync .next/server s3://twinklepod-ui-beta/server
-
-# Invalidate CloudFront cache
-aws cloudfront create-invalidation --distribution-id [ID] --paths "/*"
+cd packages/ui
+npx vercel --prod
+vercel domains add twinklepod.com
 ```
 
 ---
 
-## Verification
+## Environment Variables
 
-### Test Endpoints
-- Home: `/`
-- Login: `/login`
-- Dashboard: `/dashboard`
-- Stories: `/stories`
-- Story Reader: `/stories/[id]`
-- Library: `/library`
+Before deploying, set these in Amplify/Vercel:
 
-### Test Flows
-1. Sign up new user
-2. Create child profile
-3. Browse stories
-4. Read a story
-5. Check library tabs
+```env
+NEXT_PUBLIC_API_URL=https://6c0ae99ndf.execute-api.us-east-1.amazonaws.com/beta
+NEXT_PUBLIC_COGNITO_USER_POOL_ID=us-east-1_bvX3w7hFX
+NEXT_PUBLIC_COGNITO_CLIENT_ID=[your-client-id]
+NEXT_PUBLIC_CDN_URL=https://ddtxvdz23zxh1.cloudfront.net
+```
 
 ---
 
-## Monitoring
+## SSL Certificate
 
-### Amplify Console
-- Build logs
-- Access logs
-- Performance metrics
+Both Amplify and Vercel provide free SSL automatically.
 
-### CloudWatch
-- Lambda errors (API calls)
-- API Gateway metrics
-- Cognito authentication events
-
----
-
-## Troubleshooting
-
-### Build Fails
-- Check Node.js version (18+)
-- Verify environment variables
-- Check build logs in Amplify Console
-
-### API Errors
-- Verify API_URL is correct
-- Check CORS settings on API Gateway
-- Verify Cognito credentials
-
-### Authentication Issues
-- Check Cognito User Pool ID
-- Verify Client ID
-- Check redirect URLs in Cognito
-
----
-
-## Cost Estimate
-
-**Amplify Hosting** (500 MAU):
-- Build minutes: $0.01/min × 10 builds/month = $0.10
-- Hosting: $0.15/GB × 1GB = $0.15
-- Data transfer: $0.15/GB × 5GB = $0.75
-- **Total**: ~$1/month
-
----
-
-**Status**: Ready for deployment  
-**Last Updated**: 2025-11-27
+Your site will be accessible at:
+- https://twinklepod.com
+- https://www.twinklepod.com

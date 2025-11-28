@@ -15,9 +15,9 @@ export const Button = ({
   const baseStyles = 'font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    primary: 'bg-purple-600 text-white hover:bg-purple-700 shadow-sm hover:shadow-md active:scale-95',
-    secondary: 'bg-amber-500 text-white hover:bg-amber-600 shadow-sm hover:shadow-md active:scale-95',
-    outline: 'border-2 border-purple-600 text-purple-600 hover:bg-purple-50 active:scale-95',
+    primary: 'bg-gradient-to-r from-blue-500 via-blue-800 to-blue-950 text-white hover:from-blue-600 hover:via-blue-900 hover:to-black shadow-sm hover:shadow-md active:scale-95',
+    secondary: 'bg-gradient-to-r from-blue-500 via-blue-800 to-blue-950 text-white hover:from-blue-600 hover:via-blue-900 hover:to-black shadow-sm hover:shadow-md active:scale-95',
+    outline: 'border-2 border-blue-500 text-blue-600 hover:bg-blue-50 active:scale-95',
   };
   
   const sizes = {

@@ -19,6 +19,8 @@ interface ApiStackProps extends cdk.StackProps {
 }
 
 export class ApiStack extends cdk.Stack {
+  public readonly apiUrl: string;
+
   constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
 
@@ -257,6 +259,8 @@ export class ApiStack extends cdk.Stack {
       authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
+
+    this.apiUrl = api.url;
 
     new cdk.CfnOutput(this, 'ApiUrl', { value: api.url });
   }

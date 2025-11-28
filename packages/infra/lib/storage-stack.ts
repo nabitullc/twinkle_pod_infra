@@ -11,6 +11,7 @@ interface StorageStackProps extends cdk.StackProps {
 export class StorageStack extends cdk.Stack {
   public readonly storiesBucket: s3.Bucket;
   public readonly distribution: cloudfront.Distribution;
+  public readonly cloudfrontUrl: string;
 
   constructor(scope: Construct, id: string, props: StorageStackProps) {
     super(scope, id, props);
@@ -31,7 +32,10 @@ export class StorageStack extends cdk.Stack {
       },
     });
 
+    this.cloudfrontUrl = `https://${this.distribution.distributionDomainName}`;
+
     new cdk.CfnOutput(this, 'BucketName', { value: this.storiesBucket.bucketName });
     new cdk.CfnOutput(this, 'DistributionDomain', { value: this.distribution.distributionDomainName });
+    new cdk.CfnOutput(this, 'CloudFrontUrl', { value: this.cloudfrontUrl });
   }
 }
