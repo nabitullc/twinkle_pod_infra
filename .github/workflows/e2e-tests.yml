@@ -1,0 +1,125 @@
+name: E2E Integration Tests
+
+on:
+  push:
+    branches: [main, beta]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_e2e_tests:
+        description: 'Run E2E tests'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      run_load_tests:
+        description: 'Run load tests'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      environment:
+        description: 'Test environment'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+          - 'beta'
+          - 'production'
+
+env:
+  RUN_E2E_TESTS: ${{ github.event.inputs.run_e2e_tests || 'true' }}
+  RUN_LOAD_TESTS: ${{ github.event.inputs.run_load_tests || 'false' }}
+  TEST_ENVIRONMENT: ${{ github.event.inputs.environment || 'beta' }}
+
+jobs:
+  e2e-tests:
+    if: ${{ github.event.inputs.run_e2e_tests != 'false' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, webkit]
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      
+      - name: Set environment URL
+        run: |
+          if [ "${{ env.TEST_ENVIRONMENT }}" == "production" ]; then
+            echo "BASE_URL=https://twinklepod.com" >> $GITHUB_ENV
+          else
+            echo "BASE_URL=https://beta.twinklepod.com" >> $GITHUB_ENV
+          fi
+      
+      - name: Run E2E tests
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: npx playwright test --project=${{ matrix.browser }}
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-${{ matrix.browser }}-${{ env.TEST_ENVIRONMENT }}
+          path: playwright-report/
+      
+      - name: Upload videos
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-videos-${{ matrix.browser }}-${{ env.TEST_ENVIRONMENT }}
+          path: test-results/
+
+  load-tests:
+    if: ${{ github.event.inputs.run_load_tests == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      
+      - name: Set environment URL
+        run: |
+          if [ "${{ env.TEST_ENVIRONMENT }}" == "production" ]; then
+            echo "BASE_URL=https://twinklepod.com" >> $GITHUB_ENV
+          else
+            echo "BASE_URL=https://beta.twinklepod.com" >> $GITHUB_ENV
+          fi
+      
+      - name: Run load tests
+        env:
+          LOAD_TEST: true
+          LOAD_TEST_USERS: 100
+        run: npx playwright test tests/load/ --workers=50
+      
+      - name: Upload load test report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: load-test-report-${{ env.TEST_ENVIRONMENT }}
+          path: playwright-report/

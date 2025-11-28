@@ -10,6 +10,12 @@
     "build:api": "cd packages/api && npm run build",
     "build:infra": "cd packages/infra && npm run build",
     "build:ui": "cd packages/ui && npm run build",
-    "deploy": "cd packages/infra && npx cdk deploy --all"
+    "deploy": "cd packages/infra && npx cdk deploy --all",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:load": "LOAD_TEST=true playwright test tests/load/ --workers=50",
+    "test:install": "playwright install --with-deps"
   }
 }
