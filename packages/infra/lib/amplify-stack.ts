@@ -50,13 +50,6 @@ applications:
         { name: 'AMPLIFY_MONOREPO_APP_ROOT', value: 'packages/ui' },
       ],
       platform: 'WEB_COMPUTE',
-      customRules: [
-        {
-          source: '/<*>',
-          target: '/index.html',
-          status: '404-200',
-        },
-      ],
     });
 
     const branch = new amplify.CfnBranch(this, 'MainBranch', {
@@ -72,7 +65,7 @@ applications:
       subDomainSettings: [
         {
           branchName: branch.branchName,
-          prefix: stage === 'beta' ? 'beta' : '',
+          prefix: stage === 'beta' ? 'stagingbeta' : '',
         },
       ],
     });
@@ -83,7 +76,7 @@ applications:
     new cdk.CfnOutput(this, 'AppId', { value: amplifyApp.attrAppId });
     new cdk.CfnOutput(this, 'DefaultDomain', { value: amplifyApp.attrDefaultDomain });
     new cdk.CfnOutput(this, 'CustomDomain', { 
-      value: stage === 'beta' ? 'https://beta.twinklepod.com' : 'https://twinklepod.com' 
+      value: stage === 'beta' ? 'https://stagingbeta.twinklepod.com' : 'https://twinklepod.com' 
     });
   }
 }
