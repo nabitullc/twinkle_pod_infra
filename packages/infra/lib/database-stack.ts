@@ -40,7 +40,7 @@ export class DatabaseStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
-    this.progressTable = new dynamodb.Table(this, 'ProgressV2', {
+    this.progressTable = new dynamodb.Table(this, 'Progress', {
       partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -51,7 +51,7 @@ export class DatabaseStack extends cdk.Stack {
       sortKey: { name: 'last_read', type: dynamodb.AttributeType.STRING },
     });
 
-    this.eventsTable = new dynamodb.Table(this, 'EventsV2', {
+    this.eventsTable = new dynamodb.Table(this, 'Events', {
       partitionKey: { name: 'event_id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
