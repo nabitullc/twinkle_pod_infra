@@ -57,20 +57,19 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       return error('Story not found', 404);
     }
 
-    // Generate signed URL for story JSON
+    // Fetch story content from S3
     const s3Key = result.Item.s3_key;
-    const signedUrl = await getSignedUrl(
-      s3Client,
-      new GetObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: s3Key,
-      }),
-      { expiresIn: 3600 } // 1 hour
-    );
+    const s3Response = await s3Client.send(new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: s3Key,
+    }));
+
+    const storyContent = await s3Response.Body?.transformToString();
+    const storyData = JSON.parse(storyContent || '{}');
 
     return success({
       ...result.Item,
-      s3_url: signedUrl,
+      ...storyData,
     });
   } catch (err: any) {
     return error(err.message || 'Failed to get story', 500);
