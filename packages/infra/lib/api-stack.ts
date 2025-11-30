@@ -196,6 +196,9 @@ export class ApiStack extends cdk.Stack {
     // API Gateway
     const api = new apigateway.RestApi(this, 'Api', {
       restApiName: `twinklepod-api-${stage}`,
+      deployOptions: {
+        stageName: stage,
+      },
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
