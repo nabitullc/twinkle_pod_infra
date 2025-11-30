@@ -17,14 +17,12 @@ export class DatabaseStack extends cdk.Stack {
     super(scope, id, props);
 
     this.usersTable = new dynamodb.Table(this, 'Users', {
-      tableName: `twinklepod-users-${props.stage}`,
       partitionKey: { name: 'user_id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
     this.childProfilesTable = new dynamodb.Table(this, 'ChildProfiles', {
-      tableName: `twinklepod-child-profiles-${props.stage}`,
       partitionKey: { name: 'child_id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -43,7 +41,6 @@ export class DatabaseStack extends cdk.Stack {
     });
 
     this.progressTable = new dynamodb.Table(this, 'Progress', {
-      tableName: `twinklepod-progress-${props.stage}`,
       partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -55,7 +52,6 @@ export class DatabaseStack extends cdk.Stack {
     });
 
     this.eventsTable = new dynamodb.Table(this, 'Events', {
-      tableName: `twinklepod-events-${props.stage}`,
       partitionKey: { name: 'event_id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
